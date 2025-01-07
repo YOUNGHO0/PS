@@ -4,71 +4,37 @@
 using namespace std;
 
 
-
-vector<char> myVector;
-int visited[12] = {0};
-int ans[40] = {0};
-vector<string> wordList;
-int answer = INT_MIN;
-void getPermutation(int curDepth,int depth){
-
- 
-    if(curDepth == depth){
-
-        int total = 0;
-        for(auto s : wordList){
-            int number = 0;
-            for(int i = 0; i<s.size(); i++){
-                number *=10;
-                number += ans[s[i] - 'A'];
-            }
-
-            total += number;
-
-        }
-        answer = max(answer,total);
-
-    }
-    else{
-        for(int i =0; i<10; i++){
-            if(visited[i]== 0){
-                visited[i] = 1;
-                ans[myVector[curDepth]-'A'] = i;
-                getPermutation(curDepth+1,depth);
-                visited[i] = 0;
-                ans[myVector[curDepth]-'A'] = 0;
-            }
-        }
-    }
-
-}
-
 int main(){
 
-    cin.tie(NULL);
-    cin.sync_with_stdio(false);
 
-    int totalNum = 0;
-    cin >> totalNum;
-    int totalAlpha = 0;
+    int totalNumber;
+    cin >> totalNumber;
 
-    string temp;
-    for(int i =0; i<totalNum; i++){
+    map<char,int> alphaMap;
+    for(int i =0; i<totalNumber; i++){
+        string temp;
         cin >> temp;
-
-        for(int j =0; j<temp.size(); j++){
-            if(find(myVector.begin(), myVector.end(),temp[j]) == myVector.end()){
-                myVector.push_back(temp[j]);
-            }
+        int power =0;
+        for(int j = temp.size()-1; j >=0; j--){
+            alphaMap[temp[j]] += (1 * pow(10,power));
+            power++;
         }
-
-        wordList.push_back(temp);
     }
 
-    getPermutation(0,myVector.size());
-    cout << answer << endl;
+    vector<int> result;
+    for(auto i : alphaMap){
+        result.push_back(i.second);
+    }
 
+    sort(result.begin(),result.end(),greater<int>());
+    
+    int num = 9;
+    int answer  =0;
 
-      
+    for(auto i : result) {
+        answer += num * i;
+        num--;
+    }      
 
+    cout << answer;
 }
