@@ -95,7 +95,9 @@ cout.tie(NULL);
 
         dij(answer1);
         dij2(answer2);
-  
+        answer2[1]= 0; 
+        answer1[1][0] =0;
+        answer1[1][1] = 0;
 
         int count = 0;
         for(int i = 2; i<=N; i++){
