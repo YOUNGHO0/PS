@@ -1,72 +1,114 @@
 #include <bits/stdc++.h>
+
+
 using namespace std;
 
-map<int, set<pair<int, int>>> graph;
-int N, M;
+map<int,set<pair<int,int>>> graph;
+int N , M;
 
-void dij(vector<int>& dist) {
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
-    pq.push({0, 1});
-    dist[1] = 0;
-    
-    while (!pq.empty()) {
-        auto [value, nodeNum] = pq.top();
+ 
+void dij(vector<int> & ans){
+
+
+    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq;
+
+    pq.push({0,1});
+
+    while(!pq.empty()){
+
+
+        auto [value,nodeNum] = pq.top();
         pq.pop();
-        
-        if (dist[nodeNum] < value) continue;
-        
-        for (auto [to, nodeVal] : graph[nodeNum]) {
-            if (value + nodeVal < dist[to]) {
-                dist[to] = value + nodeVal;
-                pq.push({dist[to], to});
+
+        if(ans[nodeNum] < value) continue; //최적화를 위해 아마 필요
+
+        for(auto [to,nodeVal] : graph[nodeNum]){
+
+
+            if(value + nodeVal < ans[to]){
+                ans[to]= value + nodeVal;
+                pq.push({value+nodeVal,to});
             }
         }
+
     }
+ 
+
 }
 
-int main() {
+
+int main(){
+
     cin >> N >> M;
-    vector<vector<int>> edges;
+
+    int from, to, value;
+    vector<vector<int>> test;
     
-    for (int i = 0; i < M; i++) {
-        int from, to, value;
+    for(int i =0; i<M; i++){
+
         cin >> from >> to >> value;
-        graph[from].insert({to, value});
-        graph[to].insert({from, value});
-        edges.push_back({from, to, value});
+        graph[from].insert({to,value});
+        graph[to].insert({from,value});
+
+        test.push_back({from,to, value});
+
     }
-    
-   
-    vector<int> baseDist(N + 1, INT_MAX);
-    dij(baseDist);
-    if (baseDist[N] == INT_MAX) {
+
+     int maxNum = INT_MIN;
+    int minNum = INT_MAX;
+
+     vector<int> ori(N+1,INT_MAX);
+     dij(ori);
+
+     minNum = min(minNum,ori[N]);
+     if(minNum == INT_MAX)  {
+
         cout << -1 << endl;
         return 0;
     }
-    
-    int minNum = baseDist[N], maxNum = INT_MIN;
-    
-   
-    for (auto& edge : edges) {
-        int from = edge[0], to = edge[1], value = edge[2];
-        
-        if (baseDist[from] + value == baseDist[to] || baseDist[to] + value == baseDist[from]) {
-            
-            graph[from].erase({to, value});
-            graph[to].erase({from, value});
-            
-            vector<int> newDist(N + 1, INT_MAX);
-            dij(newDist);
-            
-            maxNum = max(maxNum, newDist[N]);
-            
-            graph[from].insert({to, value});
-            graph[to].insert({from, value});
+
+    vector<bool> isPath(M+1,false);
+
+    for(int i = 0; i<M; i++){
+        int from = test[i][0];
+        int to = test[i][1];
+        int val = test[i][2];
+
+        if(ori[from] + val == ori[to] || ori[to] + val == ori[from]){
+            isPath[i] = true;
         }
+
     }
-    
-    if (maxNum == INT_MAX) cout << -1 << endl;
-    else cout << maxNum - minNum << endl;
-    
-    return 0;
+
+
+
+   
+    for(int i =0; i<M; i++){
+        vector<int> ans(N+1,INT_MAX);
+
+        if(!isPath[i]) continue;
+        graph[test[i][0]].erase({test[i][1],test[i][2]});
+        graph[test[i][1]].erase({test[i][0],test[i][2]});
+
+        dij(ans);
+        // cout << test[i][1] << " " << test[i][0] << " " << test[i][2]<< endl;
+
+        maxNum = max(maxNum,ans[N]);
+        minNum = min(minNum,ans[N]);
+        // cout << maxNum << endl;
+        // cout << minNum << endl;
+
+        graph[test[i][0]].insert({test[i][1],test[i][2]});
+        graph[test[i][1]].insert({test[i][0],test[i][2]});
+
+    }
+
+    if(maxNum == INT_MAX) cout << -1 << endl;
+    else{
+        cout << maxNum - minNum << endl;
+     
+    }
+        
 }
+
+
